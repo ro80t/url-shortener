@@ -43,7 +43,7 @@ async function compress() {
   }
 
   const json = (await response.json()) as { id: string };
-  const compressUrl = `https://jli.li/${json.id}`;
+  const compressUrl = new URL(json.id, "https://jli.li/").toString();
   const message =
     originalUrl.value.length < compressUrl.length
       ? "元URLのほうがサイズが小さいので元URLを使うのをおすすめします。"
