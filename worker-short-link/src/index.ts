@@ -54,16 +54,25 @@ async function handleShortId(id: string, env: Env): Promise<Response> {
   }
 
   if (link) {
-    return new Response(null, { status: 301, headers: { location: link, "cache-control": NO_CACHE } });
+    return new Response(null, {
+      status: 301,
+      headers: { location: link, "cache-control": NO_CACHE },
+    });
   }
 
   const notFound = await env.ASSETS.fetch(new URL("/404/compression.html", "https://assets.local"));
-  return new Response(notFound.body, { status: 404, headers: { "content-type": "text/html; charset=utf-8", "cache-control": NO_CACHE } });
+  return new Response(notFound.body, {
+    status: 404,
+    headers: { "content-type": "text/html; charset=utf-8", "cache-control": NO_CACHE },
+  });
 }
 
 async function handleNotFound(env: Env): Promise<Response> {
   const notFound = await env.ASSETS.fetch(new URL("/404.html", "https://assets.local"));
-  return new Response(notFound.body, { status: 404, headers: { "content-type": "text/html; charset=utf-8", "cache-control": NO_CACHE } });
+  return new Response(notFound.body, {
+    status: 404,
+    headers: { "content-type": "text/html; charset=utf-8", "cache-control": NO_CACHE },
+  });
 }
 
 export default {
@@ -71,7 +80,8 @@ export default {
     const url = new URL(req.url);
 
     if (req.method === "POST" && url.pathname === "/api/compress") return handleCompress(req, env);
-    if (req.method === "POST" && url.pathname === "/api/decompress") return handleDecompress(req, env);
+    if (req.method === "POST" && url.pathname === "/api/decompress")
+      return handleDecompress(req, env);
 
     if (req.method === "GET") {
       const id = url.pathname.slice(1);

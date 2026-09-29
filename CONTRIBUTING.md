@@ -29,9 +29,11 @@ Both Workers connect to Postgres through a Hyperdrive binding, so `wrangler dev`
 
 ```console
 bun run typecheck
+bun run lint
+bun run format
 ```
 
-This runs `tsc --noEmit` across every workspace via Turbo and must pass.
+`typecheck` runs `tsc --noEmit` across every workspace via Turbo. `lint` runs oxlint and `format` runs oxfmt (writes in place) over the TypeScript/JavaScript source. All three must be clean before opening a PR.
 
 If you changed `packages/db/src/schema.ts`, follow `.agents/skills/db-migration/SKILL.md` — generate the migration with `drizzle-kit generate`, don't hand-write SQL under `packages/db/drizzle/`, and commit the generated migration + `meta/` snapshot alongside your schema change.
 
@@ -54,7 +56,7 @@ The redirect side is designed to be duplicated per domain while `worker-short-li
 ## Opening a PR
 
 - Fork the repo, branch off `main`, and open a PR against `main`.
-- Describe *why* the change is needed, not just what changed.
+- Describe _why_ the change is needed, not just what changed.
 - Keep PRs focused — one concern per PR is easier to review than several bundled together.
 
 ## Questions
