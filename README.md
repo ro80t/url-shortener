@@ -1,26 +1,24 @@
-# JLI Project
-
-Repository for https://jli.li, a URL shortener.
-
-## Why "JLI"?
-
-We liked how short `jli.li` looked as a domain, so we picked it up. No deeper meaning behind the name.
-
-## Why open source?
-
-This project is open source so anyone can send a Pull Request if they spot a mistake in the code.
-
-Team ThunLights is also actively recruiting members. See [here](https://github.com/ThunLights#%E3%83%A1%E3%83%B3%E3%83%90%E3%83%BC%E5%8B%9F%E9%9B%86) for details.
+# URL Shortener
 
 ## Architecture
 
-A Bun workspaces + Turborepo monorepo, made up of two Cloudflare Workers backed by a single Neon (Postgres) database via Hyperdrive, with Drizzle ORM as the query layer:
+A Bun workspaces + Turborepo monorepo, with Drizzle ORM as the query layer over a single Neon (Postgres) database that every Worker reaches through Hyperdrive:
 
-- `packages/db/`: Drizzle schema and DB client, shared by both Workers.
-- `worker-short-link/`: link-issuance API and the front-end site, deployed to `short-link.ro80t.com`.
-- `worker-shortener-domain/`: redirect-only Worker, deployed to `jli.li`. It resolves `/{id}` directly against the same database and 301-redirects; every other path 302-redirects to `short-link.ro80t.com`.
+- `packages/db/`: Drizzle schema and DB client, shared by every Worker below.
+- `worker-short-link/`: the one and only issuance backend — link-issuance API and the front-end site, deployed to `short-link.ro80t.com`. This is where new short links are created and looked up, regardless of which domain they'll redirect from.
+- `worker-shortener-domain/`: a thin, redirect-only Worker for `jli.li`, the first short-link domain. It resolves `/{id}` directly against the shared database and 301-redirects; every other path 302-redirects to `short-link.ro80t.com`.
 
-Both Workers read/write the same `sites` table (`id text primary key`, `link text unique not null`) through the shared Hyperdrive binding — no HTTP hop between them.
+Every Worker reads/writes the same `sites` table (`id text primary key`, `link text unique not null`) through the shared Hyperdrive binding — no HTTP hop between them.
+
+### Adding another short-link domain
+
+The redirect side is designed to be duplicated per domain while `worker-short-link` stays the single shared backend:
+
+1. Copy `worker-shortener-domain/` to a new `worker-<name>/` directory (same `src/index.ts` pattern: look up `/{id}` in the shared DB, redirect if found, otherwise 302 to `short-link.ro80t.com`).
+2. Point its `wrangler.toml` `routes` at the new domain, and bind the same Hyperdrive config.
+3. Add the new package to the root `package.json` `workspaces` array.
+4. Add the new domain to `OWN_DOMAINS` in `worker-short-link/src/validate.ts`, so it can't be shortened into a link on itself (the same reason `jli.li` and `short-link.ro80t.com` are already in that set).
+5. If the domain should also appear in the front-end's displayed short URL (`worker-short-link/js/script.js` currently hardcodes `jli.li`), that logic will need to become domain-aware — not required if the new domain is redirect-only infrastructure without its own issuance UI.
 
 ## Setup
 
@@ -36,7 +34,7 @@ Point it at the Neon connection string from step 1.
 
 ### 3. Wire up the Hyperdrive id
 
-Set the Hyperdrive id you just created as `[[hyperdrive]] id` in **both** `worker-short-link/wrangler.toml` and `worker-shortener-domain/wrangler.toml` (they ship with the placeholder `<hyperdrive-id-here>`).
+Set the Hyperdrive id you just created as `[[hyperdrive]] id` in **every** worker's `wrangler.toml` — currently `worker-short-link` and `worker-shortener-domain` (they ship with the placeholder `<hyperdrive-id-here>`); any redirect worker added for a new domain needs the same id.
 
 ### 4. Install dependencies
 
@@ -54,7 +52,7 @@ This runs `turbo run deploy`, which typechecks and then `wrangler deploy`s both 
 
 ### 6. Assign routes in the Cloudflare dashboard
 
-Point `short-link.ro80t.com/*` at `worker-short-link` and `jli.li/*` at `worker-shortener-domain`.
+Point `short-link.ro80t.com/*` at `worker-short-link` and `jli.li/*` at `worker-shortener-domain` (and, for any future domain, its own route at its own redirect worker).
 
 See `.agents/skills/deploy/SKILL.md` for the day-to-day deploy checklist.
 
