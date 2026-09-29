@@ -1,0 +1,13 @@
+name = "short-link"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+routes = [{ pattern = "short-link.ro80t.com/*", zone_name = "ro80t.com" }]
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "<hyperdrive-id-here>"

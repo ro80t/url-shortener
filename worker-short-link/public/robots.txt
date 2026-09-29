@@ -1,0 +1,3 @@
+Sitemap: https://short-link.ro80t.com/sitemap.xml
+User-agent: *
+Disallow: /api/*
