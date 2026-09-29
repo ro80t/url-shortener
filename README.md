@@ -10,15 +10,7 @@ A Bun workspaces + Turborepo monorepo, with Drizzle ORM as the query layer over 
 
 Every Worker reads/writes the same `sites` table (`id text primary key`, `link text unique not null`) through the shared Hyperdrive binding — no HTTP hop between them.
 
-### Adding another short-link domain
-
-The redirect side is designed to be duplicated per domain while `worker-short-link` stays the single shared backend:
-
-1. Copy `worker-shortener-domain/` to a new `worker-<name>/` directory (same `src/index.ts` pattern: look up `/{id}` in the shared DB, redirect if found, otherwise 302 to `short-link.ro80t.com`).
-2. Point its `wrangler.toml` `routes` at the new domain, and bind the same Hyperdrive config.
-3. Add the new package to the root `package.json` `workspaces` array.
-4. Add the new domain to `OWN_DOMAINS` in `worker-short-link/src/validate.ts`, so it can't be shortened into a link on itself (the same reason `jli.li` and `short-link.ro80t.com` are already in that set).
-5. If the domain should also appear in the front-end's displayed short URL (`worker-short-link/js/script.js` currently hardcodes `jli.li`), that logic will need to become domain-aware — not required if the new domain is redirect-only infrastructure without its own issuance UI.
+`worker-shortener-domain` is one instance of a repeatable, redirect-only pattern — the architecture is built to let more short-link domains be added the same way later, without touching `worker-short-link`. See `CONTRIBUTING.md` for the steps to add one.
 
 ## Setup
 

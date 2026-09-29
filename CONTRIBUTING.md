@@ -4,12 +4,9 @@ Thanks for considering a contribution to JLI. This is a small Bun/Turborepo mono
 
 ## Project layout
 
-- `packages/db/` — Drizzle schema and DB client shared by both Workers. Schema changes always start here.
-- `worker-short-link/` — link-issuance API + front-end site (`short-link.ro80t.com`).
-- `worker-shortener-domain/` — redirect-only Worker (`jli.li`).
-- `.agents/skills/` — step-by-step checklists for recurring tasks (`deploy`, `db-migration`); read the relevant one before touching deploy config or the DB schema.
+See `README.md` for the full architecture. In short: `packages/db/` holds the schema shared by every Worker, `worker-short-link/` is the single issuance backend, and `worker-shortener-domain/` (plus any future domain worker) is a thin redirect-only Worker.
 
-See `README.md` for the full architecture.
+`.agents/skills/` has step-by-step checklists for recurring tasks (`deploy`, `db-migration`) — read the relevant one before touching deploy config or the DB schema.
 
 ## Getting started
 
@@ -37,6 +34,16 @@ bun run typecheck
 This runs `tsc --noEmit` across every workspace via Turbo and must pass.
 
 If you changed `packages/db/src/schema.ts`, follow `.agents/skills/db-migration/SKILL.md` — generate the migration with `drizzle-kit generate`, don't hand-write SQL under `packages/db/drizzle/`, and commit the generated migration + `meta/` snapshot alongside your schema change.
+
+## Adding a new short-link domain
+
+The redirect side is designed to be duplicated per domain while `worker-short-link` stays the single shared backend:
+
+1. Copy `worker-shortener-domain/` to a new `worker-<name>/` directory (same `src/index.ts` pattern: look up `/{id}` in the shared DB, redirect if found, otherwise 302 to `short-link.ro80t.com`).
+2. Point its `wrangler.toml` `routes` at the new domain, and bind the same Hyperdrive config.
+3. Add the new package to the root `package.json` `workspaces` array.
+4. Add the new domain to `OWN_DOMAINS` in `worker-short-link/src/validate.ts`, so it can't be shortened into a link on itself (the same reason `jli.li` and `short-link.ro80t.com` are already in that set).
+5. If the domain should also appear in the front-end's displayed short URL (`worker-short-link/js/script.js` currently hardcodes `jli.li`), that logic will need to become domain-aware — not required if the new domain is redirect-only infrastructure without its own issuance UI.
 
 ## Code style
 
