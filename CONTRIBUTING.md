@@ -4,7 +4,7 @@ Thanks for considering a contribution to JLI. This is a small Bun/Turborepo mono
 
 ## Project layout
 
-See `README.md` for the full architecture. In short: `packages/db/` holds the schema shared by every Worker, `worker-short-link/` is the single issuance backend, and `worker-shortener-domain/` (plus any future domain worker) is a thin redirect-only Worker.
+See `README.md` for the full architecture. In short: `packages/constants/` (`consts`) holds shared fixed values like the domain names, `packages/db/` holds the schema shared by every Worker, `worker-short-link/` is the single issuance backend, and `worker-shortener-domain/` (plus any future domain worker) is a thin redirect-only Worker.
 
 `.agents/skills/` has step-by-step checklists for recurring tasks (`deploy`, `db-migration`) — read the relevant one before touching deploy config or the DB schema.
 

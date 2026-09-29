@@ -1,6 +1,7 @@
+import { OWN_DOMAINS } from "consts";
+
 const MAX_URL_LENGTH = 2048;
 const URL_FORMAT = /^https?:\/\/[\w/:%#$&?()~.=+-]+$/;
-const OWN_DOMAINS = new Set(["jli.li", "short-link.ro80t.com"]);
 
 export function validateLink(link: string): string | null {
   if (!URL_FORMAT.test(link)) return "URL Format Error";

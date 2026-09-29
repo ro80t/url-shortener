@@ -2,6 +2,7 @@
   "name": "jli",
   "private": true,
   "workspaces": [
+    "packages/constants",
     "packages/db",
     "worker-short-link",
     "worker-shortener-domain"

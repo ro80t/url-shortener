@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { SHORT_LINK_URL } from "consts";
 import { createDb, sites } from "db";
 import { eq } from "drizzle-orm";
 
@@ -6,7 +7,6 @@ interface Bindings {
   HYPERDRIVE: { connectionString: string };
 }
 
-const SHORT_LINK_HOST = "https://short-link.ro80t.com";
 const NO_CACHE = "no-cache, no-store, must-revalidate";
 
 async function lookup(env: Bindings, id: string): Promise<string | null> {
@@ -20,7 +20,7 @@ async function lookup(env: Bindings, id: string): Promise<string | null> {
 }
 
 function toShortLinkUrl(requestUrl: string): string {
-  const target = new URL(SHORT_LINK_HOST);
+  const target = new URL(SHORT_LINK_URL);
   const requested = new URL(requestUrl);
   target.pathname = requested.pathname;
   target.search = requested.search;

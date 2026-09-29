@@ -4,6 +4,7 @@
 
 A Bun workspaces + Turborepo monorepo, with Drizzle ORM as the query layer over a single Neon (Postgres) database that every Worker reaches through Hyperdrive:
 
+- `packages/constants/`: shared fixed values (the `jli.li` / `short-link.ro80t.com` domains and origins), imported as `consts`.
 - `packages/db/`: Drizzle schema and DB client, shared by every Worker below.
 - `worker-short-link/`: the one and only issuance backend — link-issuance API and the front-end site, deployed to `short-link.ro80t.com`. This is where new short links are created and looked up, regardless of which domain they'll redirect from. Built with Hono + Inertia.js + Vue 3 (SSR), bundled by Vite (`@cloudflare/vite-plugin`).
 - `worker-shortener-domain/`: a thin, redirect-only Worker for `jli.li`, the first short-link domain. It resolves `/{id}` directly against the shared database and 301-redirects; every other path 302-redirects to `short-link.ro80t.com`.

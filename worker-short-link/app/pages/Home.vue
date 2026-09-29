@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { JLI_DOMAIN, JLI_URL, SHORT_LINK_DOMAIN } from "consts";
 import Layout from "./Layout.vue";
 
 defineProps<{ url: string }>();
@@ -26,7 +27,7 @@ async function compress() {
     compressResult.value = { error: "URL以外の文字列は短縮できません" };
     return;
   }
-  if (url.hostname === "jli.li" || url.hostname === "short-link.ro80t.com") {
+  if (url.hostname === JLI_DOMAIN || url.hostname === SHORT_LINK_DOMAIN) {
     compressResult.value = { error: "ドメインがjli.liのURLは短縮することが出来ません" };
     return;
   }
@@ -43,7 +44,7 @@ async function compress() {
   }
 
   const json = (await response.json()) as { id: string };
-  const compressUrl = new URL(json.id, "https://jli.li/").toString();
+  const compressUrl = new URL(json.id, JLI_URL).toString();
   const message =
     originalUrl.value.length < compressUrl.length
       ? "元URLのほうがサイズが小さいので元URLを使うのをおすすめします。"

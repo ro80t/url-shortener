@@ -10,6 +10,12 @@
         "turbo": "^2.11.5",
       },
     },
+    "packages/constants": {
+      "name": "consts",
+      "devDependencies": {
+        "typescript": "^5.6.0",
+      },
+    },
     "packages/db": {
       "name": "db",
       "dependencies": {
@@ -27,6 +33,7 @@
         "@hono/inertia": "^0.8.0",
         "@inertiajs/core": "^3.7.1",
         "@inertiajs/vue3": "^3.7.1",
+        "consts": "workspace:*",
         "db": "workspace:*",
         "drizzle-orm": "^0.36.4",
         "hono": "^4.13.11",
@@ -46,6 +53,7 @@
     "worker-shortener-domain": {
       "name": "worker-shortener-domain",
       "dependencies": {
+        "consts": "workspace:*",
         "db": "workspace:*",
         "drizzle-orm": "^0.36.4",
         "hono": "^4.13.11",
@@ -401,6 +409,8 @@
     "color-name": ["color-name@1.1.4", "", {}, "sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA=="],
 
     "color-string": ["color-string@1.9.1", "", { "dependencies": { "color-name": "^1.0.0", "simple-swizzle": "^0.2.2" } }, "sha512-shrVawQFojnZv6xM40anx4CkoDP+fZsw/ZerEMsW/pyzsRbElpsL/DBVW7q3ExxwusdNXI3lXpuhEZkzs8p5Eg=="],
+
+    "consts": ["consts@workspace:packages/constants"],
 
     "cookie": ["cookie@1.1.1", "", {}, "sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ=="],
 
