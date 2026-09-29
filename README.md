@@ -1,61 +1,71 @@
 # JLI Project
 
-https://jli.li のリポジトリです。
+Repository for https://jli.li, a URL shortener.
 
-## 何故JLIという名前なんですか？
+## Why "JLI"?
 
-ドメインにした時jli.liという文字列が短く見えていいなと思ってドメインを取りました。
+We liked how short `jli.li` looked as a domain, so we picked it up. No deeper meaning behind the name.
 
-なので具体的な意味はありません
+## Why open source?
 
-## 何故オープンソース？
+This project is open source so anyone can send a Pull Request if they spot a mistake in the code.
 
-Team ThunLightsにはRustが得意なプログラマーが居ないためもしコードに間違いなどあれば、Pull Requestをしてほしいからです。
+Team ThunLights is also actively recruiting members. See [here](https://github.com/ThunLights#%E3%83%A1%E3%83%B3%E3%83%90%E3%83%BC%E5%8B%9F%E9%9B%86) for details.
 
-またTeam ThunLightsは現在進行形でRustが得意なプログラマーを募集中です。
+## Architecture
 
-詳しくは[こちら](https://github.com/ThunLights#%E3%83%A1%E3%83%B3%E3%83%90%E3%83%BC%E5%8B%9F%E9%9B%86)をご覧ください
+A Bun workspaces + Turborepo monorepo, made up of two Cloudflare Workers backed by a single Neon (Postgres) database via Hyperdrive, with Drizzle ORM as the query layer:
 
-## 構成
+- `packages/db/`: Drizzle schema and DB client, shared by both Workers.
+- `worker-short-link/`: link-issuance API and the front-end site, deployed to `short-link.ro80t.com`.
+- `worker-shortener-domain/`: redirect-only Worker, deployed to `jli.li`. It resolves `/{id}` directly against the same database and 301-redirects; every other path 302-redirects to `short-link.ro80t.com`.
 
-Bun workspaces + Turborepo によるモノレポで、Cloudflare Workers 2本 + Neon(Postgres, Hyperdrive経由・Drizzle ORM)を構成しています。
+Both Workers read/write the same `sites` table (`id text primary key`, `link text unique not null`) through the shared Hyperdrive binding — no HTTP hop between them.
 
-- `packages/db/`: Drizzle スキーマ・DBクライアント(両Workerから共有)
-- `worker-short-link/`: 短縮リンク発行API・フロントサイト (`short-link.ro80t.com`)
-- `worker-shortener-domain/`: 短縮リンクのリダイレクト専用 (`jli.li`)
+## Setup
 
-## セットアップ方法
+### 1. Create a Neon (Postgres) database and apply the schema
 
-### 1. Neon(Postgres)のデータベースを作成し、`packages/db/drizzle/0000_shocking_fixer.sql` を実行する
+Run `packages/db/drizzle/0000_shocking_fixer.sql` against it (via the Neon SQL editor or `psql`).
 
-スキーマを変更した場合は `packages/db` で `bun run generate` すると新しいマイグレーションSQLが生成されます。
+If you change the schema later, run `bun run generate` inside `packages/db` to generate a new migration file — see `.agents/skills/db-migration/SKILL.md`.
 
-### 2. Cloudflareダッシュボードで、そのNeonの接続文字列を使ってHyperdriveを1つ作成する
+### 2. Create a Hyperdrive config in the Cloudflare dashboard
 
-### 3. 発行されたHyperdriveのIDを、両方の `wrangler.toml` の `[[hyperdrive]] id` に設定する
+Point it at the Neon connection string from step 1.
 
-### 4. 依存関係をインストールする
+### 3. Wire up the Hyperdrive id
+
+Set the Hyperdrive id you just created as `[[hyperdrive]] id` in **both** `worker-short-link/wrangler.toml` and `worker-shortener-domain/wrangler.toml` (they ship with the placeholder `<hyperdrive-id-here>`).
+
+### 4. Install dependencies
 
 ```console
 bun install
 ```
 
-### 5. デプロイする(Turboが両Workerを実行)
+### 5. Deploy
 
 ```console
 bun run deploy
 ```
 
-### 6. Cloudflareダッシュボードで `short-link.ro80t.com` と `jli.li` のルートを各Workerに割り当てる
+This runs `turbo run deploy`, which typechecks and then `wrangler deploy`s both Workers.
 
-## 更新一覧
+### 6. Assign routes in the Cloudflare dashboard
 
-バージョン一覧を書いておきます。
+Point `short-link.ro80t.com/*` at `worker-short-link` and `jli.li/*` at `worker-shortener-domain`.
+
+See `.agents/skills/deploy/SKILL.md` for the day-to-day deploy checklist.
+
+## Changelog
 
 ### Version 1.0
 
-リリース: 2024/10/06
+Released: 2024/10/06
 
-色々苦戦しつつも何とかリリース
+Initial release (originally a Rust/actix-web + SQLite server). Some pages were still unfinished at launch.
 
-HTMLが一部完成してないので早いうちに改善したい
+### Cloudflare Workers migration
+
+Rewritten as the Bun/Turborepo + Cloudflare Workers + Neon/Drizzle architecture described above, splitting link issuance (`short-link.ro80t.com`) from the `jli.li` redirect.
