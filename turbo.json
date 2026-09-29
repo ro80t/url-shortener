@@ -11,9 +11,12 @@
       "cache": false,
       "persistent": true
     },
+    "build": {
+      "outputs": ["dist/**"]
+    },
     "deploy": {
       "cache": false,
-      "dependsOn": ["typecheck"]
+      "dependsOn": ["typecheck", "build"]
     }
   }
 }

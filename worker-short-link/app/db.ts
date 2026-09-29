@@ -9,11 +9,7 @@ function generateId(): string {
   return Array.from(bytes, (b) => ID_CHARS[b % ID_CHARS.length]).join("");
 }
 
-export interface Env {
-  HYPERDRIVE: { connectionString: string };
-}
-
-export function client(env: Env) {
+export function client(env: CloudflareBindings) {
   return createDb(env.HYPERDRIVE.connectionString);
 }
 

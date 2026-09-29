@@ -23,7 +23,7 @@ cd worker-short-link  # or worker-shortener-domain
 bun run dev
 ```
 
-Both Workers connect to Postgres through a Hyperdrive binding, so `wrangler dev` needs either a real Hyperdrive id in `wrangler.toml`, or a `localConnectionString` added under `[[hyperdrive]]` pointing at a local/dev Postgres instance for offline development.
+`worker-short-link`'s `dev` runs `vite` (Hono + Inertia + Vue, SSR'd on every request); `worker-shortener-domain`'s runs `wrangler dev` directly. Both connect to Postgres through a Hyperdrive binding, so either needs a real Hyperdrive id in its config (`wrangler.jsonc` / `wrangler.toml`), or a `localConnectionString` added under the `hyperdrive` binding pointing at a local/dev Postgres instance for offline development.
 
 ## Before opening a PR
 
@@ -44,8 +44,8 @@ The redirect side is designed to be duplicated per domain while `worker-short-li
 1. Copy `worker-shortener-domain/` to a new `worker-<name>/` directory (same `src/index.ts` pattern: look up `/{id}` in the shared DB, redirect if found, otherwise 302 to `short-link.ro80t.com`).
 2. Point its `wrangler.toml` `routes` at the new domain, and bind the same Hyperdrive config.
 3. Add the new package to the root `package.json` `workspaces` array.
-4. Add the new domain to `OWN_DOMAINS` in `worker-short-link/src/validate.ts`, so it can't be shortened into a link on itself (the same reason `jli.li` and `short-link.ro80t.com` are already in that set).
-5. If the domain should also appear in the front-end's displayed short URL (`worker-short-link/js/script.js` currently hardcodes `jli.li`), that logic will need to become domain-aware — not required if the new domain is redirect-only infrastructure without its own issuance UI.
+4. Add the new domain to `OWN_DOMAINS` in `worker-short-link/app/validate.ts`, so it can't be shortened into a link on itself (the same reason `jli.li` and `short-link.ro80t.com` are already in that set).
+5. If the domain should also appear in the front-end's displayed short URL (`worker-short-link/app/pages/Home.vue` currently hardcodes `jli.li`), that logic will need to become domain-aware — not required if the new domain is redirect-only infrastructure without its own issuance UI.
 
 ## Code style
 

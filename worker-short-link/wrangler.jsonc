@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "short-link",
+  "compatibility_date": "2024-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "./app/server.ts",
+  "routes": [{ "pattern": "short-link.ro80t.com/*", "zone_name": "ro80t.com" }],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "<hyperdrive-id-here>",
+      "localConnectionString": "postgres://user:0000@localhost:1234/test",
+    },
+  ],
+}
