@@ -1,6 +1,6 @@
 ---
 name: deploy
-description: Deploy the two jli.li Cloudflare Workers (short-link.ro80t.com issuance API/site, jli.li redirect) via Turbo/Wrangler. Use when asked to deploy, ship, or push this repo to production.
+description: Deploy the project's Cloudflare Workers (short-link.ro80t.com issuance API/site, plus one redirect Worker per short-link domain such as jli.li) via Turbo/Wrangler. Use when asked to deploy, ship, or push this repo to production.
 ---
 
 # Deploy

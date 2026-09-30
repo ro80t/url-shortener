@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for considering a contribution to JLI. This is a small Bun/Turborepo monorepo; the workflow is intentionally lightweight.
+Thanks for considering a contribution to this URL shortener. This is a small Bun/Turborepo monorepo; the workflow is intentionally lightweight.
 
 ## Project layout
 

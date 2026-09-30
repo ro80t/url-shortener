@@ -1,6 +1,6 @@
 ---
 name: db-migration
-description: Change the shared Postgres (Neon) schema used by both jli.li Workers, via Drizzle. Use when asked to add or change a column, table, or index on the sites DB.
+description: Change the shared Postgres (Neon) schema used by every short-link Worker (issuance plus each domain's redirect Worker, e.g. jli.li), via Drizzle. Use when asked to add or change a column, table, or index on the sites DB.
 ---
 
 # DB schema changes

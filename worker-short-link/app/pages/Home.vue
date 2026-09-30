@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { JLI_DOMAIN, JLI_URL, SHORT_LINK_DOMAIN } from "consts";
+import { JLI_URL, OWN_DOMAINS } from "consts";
 import Layout from "./Layout.vue";
 
 defineProps<{ url: string }>();
@@ -27,8 +27,8 @@ async function compress() {
     compressResult.value = { error: "URL以外の文字列は短縮できません" };
     return;
   }
-  if (url.hostname === JLI_DOMAIN || url.hostname === SHORT_LINK_DOMAIN) {
-    compressResult.value = { error: "ドメインがjli.liのURLは短縮することが出来ません" };
+  if (OWN_DOMAINS.has(url.hostname)) {
+    compressResult.value = { error: "本サービスの短縮URLドメインは短縮することが出来ません" };
     return;
   }
 
@@ -57,7 +57,10 @@ async function compress() {
 async function decompress() {
   decompressResult.value = null;
 
-  const match = decompressInput.value.match(/https:\/\/jli\.li\/(.+)/);
+  const ownDomainPattern = [...OWN_DOMAINS].map((d) => d.replace(/\./g, "\\.")).join("|");
+  const match = decompressInput.value.match(
+    new RegExp(`^https:\\/\\/(?:${ownDomainPattern})\\/(.+)`),
+  );
   const id = match ? match[1] : decompressInput.value;
 
   const response = await fetch("/api/decompress", {
