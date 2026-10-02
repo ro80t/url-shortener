@@ -8,6 +8,13 @@
       "when": 1790655476941,
       "tag": "0000_shocking_fixer",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790952821921,
+      "tag": "0001_white_guardian",
+      "breakpoints": true
     }
   ]
 }

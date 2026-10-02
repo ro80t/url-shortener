@@ -19,6 +19,7 @@
     "packages/db": {
       "name": "db",
       "dependencies": {
+        "consts": "workspace:*",
         "drizzle-orm": "^0.36.4",
         "postgres": "^3.4.5",
       },

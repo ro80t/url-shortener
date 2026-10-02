@@ -38,20 +38,6 @@ const routes = app
       await close();
     }
   })
-  .get("/:id", async (c) => {
-    const { db, close } = client(c.env);
-    let link: string | null;
-    try {
-      link = await id2link(db, c.req.param("id"));
-    } finally {
-      await close();
-    }
-
-    if (link) return c.redirect(link, 301);
-
-    c.status(404);
-    return c.render("LinkNotFound", { url: new URL(c.req.url).toString() });
-  })
   .all("*", (c) => {
     c.status(404);
     return c.render("Error404", { url: new URL(c.req.url).toString() });

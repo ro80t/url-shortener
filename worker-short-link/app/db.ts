@@ -1,4 +1,4 @@
-import { createDb, sites, type Database } from "db";
+import { createDb, link as linkTable, type Database } from "db";
 import { eq } from "drizzle-orm";
 
 const ID_SIZE = 6;
@@ -14,32 +14,36 @@ export function client(env: CloudflareBindings) {
 }
 
 export async function id2link(db: Database, id: string): Promise<string | null> {
-  const rows = await db.select({ link: sites.link }).from(sites).where(eq(sites.id, id)).limit(1);
-  return rows[0]?.link ?? null;
+  const rows = await db
+    .select({ url: linkTable.url })
+    .from(linkTable)
+    .where(eq(linkTable.id, id))
+    .limit(1);
+  return rows[0]?.url ?? null;
 }
 
-export async function link2id(db: Database, link: string): Promise<string> {
+export async function link2id(db: Database, url: string): Promise<string> {
   const existing = await db
-    .select({ id: sites.id })
-    .from(sites)
-    .where(eq(sites.link, link))
+    .select({ id: linkTable.id })
+    .from(linkTable)
+    .where(eq(linkTable.url, url))
     .limit(1);
   if (existing[0]) return existing[0].id;
 
   for (;;) {
     const id = generateId();
     const inserted = await db
-      .insert(sites)
-      .values({ id, link })
+      .insert(linkTable)
+      .values({ id, url })
       .onConflictDoNothing()
-      .returning({ id: sites.id });
+      .returning({ id: linkTable.id });
     if (inserted[0]) return inserted[0].id;
 
-    // 競合: idの衝突か、同一linkが並行挿入されたか。後者ならそのidを返す。
+    // 競合: idの衝突か、同一urlが並行挿入されたか。後者ならそのidを返す。
     const raced = await db
-      .select({ id: sites.id })
-      .from(sites)
-      .where(eq(sites.link, link))
+      .select({ id: linkTable.id })
+      .from(linkTable)
+      .where(eq(linkTable.url, url))
       .limit(1);
     if (raced[0]) return raced[0].id;
   }

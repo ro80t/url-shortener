@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { SHORT_LINK_URL } from "consts";
-import { createDb, sites } from "db";
+import { createDb, link as linkTable } from "db";
 import { eq } from "drizzle-orm";
 
 interface Bindings {
@@ -12,8 +12,12 @@ const NO_CACHE = "no-cache, no-store, must-revalidate";
 async function lookup(env: Bindings, id: string): Promise<string | null> {
   const { db, close } = createDb(env.HYPERDRIVE.connectionString);
   try {
-    const rows = await db.select({ link: sites.link }).from(sites).where(eq(sites.id, id)).limit(1);
-    return rows[0]?.link ?? null;
+    const rows = await db
+      .select({ url: linkTable.url })
+      .from(linkTable)
+      .where(eq(linkTable.id, id))
+      .limit(1);
+    return rows[0]?.url ?? null;
   } finally {
     await close();
   }
