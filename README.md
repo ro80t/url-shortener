@@ -17,7 +17,7 @@ Every Worker reads/writes the same `link` table (`id text primary key`, `url tex
 
 ### 1. Create a Neon (Postgres) database and apply the schema
 
-Run `packages/db/drizzle/0000_shocking_fixer.sql` against it (via the Neon SQL editor or `psql`).
+Apply the schema with `DATABASE_URL=<connection string> bun run db:migrate` (the same command the deploy job runs on every push to `main`).
 
 If you change the schema later, run `bun run generate` inside `packages/db` to generate a new migration file — see `.agents/skills/db-migration/SKILL.md`.
 

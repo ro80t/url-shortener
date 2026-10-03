@@ -10,8 +10,6 @@ services:
       - "1234:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      # Drizzle migrations, applied in filename order on first start of an empty volume.
-      - ./packages/db/drizzle:/docker-entrypoint-initdb.d:ro
 
 volumes:
   pgdata:

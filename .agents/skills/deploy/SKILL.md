@@ -22,10 +22,10 @@ A push to `main` runs all of this automatically: the `deploy` job in `.github/wo
 
 ## One-time environment setup (not part of a normal deploy)
 
-- Neon Postgres DB created, schema applied from `packages/db/drizzle/*.sql` (see the `db-migration` skill).
+- Neon Postgres DB created (its schema is applied by the `deploy` job's `bun run db:migrate` step — see the `db-migration` skill).
 - One Hyperdrive config in Cloudflare pointing at that Neon connection string.
 - Both workers' configs have their `hyperdrive` binding's `id` set to that Hyperdrive's id — it ships as the placeholder `<hyperdrive-id-here>` in `worker-short-link/wrangler.jsonc` and `worker-shortener-domain/wrangler.jsonc`.
-- GitHub repository secrets for the `deploy` job: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, and `HYPERDRIVE_ID` (the job substitutes it for the `<hyperdrive-id-here>` placeholder before running `bun run deploy`).
+- GitHub repository secrets for the `deploy` job: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `DATABASE_URL` (the Neon connection string the migration step applies to), and `HYPERDRIVE_ID` (the job substitutes it for the `<hyperdrive-id-here>` placeholder before running `bun run deploy`).
 - Cloudflare routes assigning `short-link.ro80t.com/*` and `jli.li/*` to their respective workers.
 - `worker-short-link` also needs `bunx wrangler types --env-interface CloudflareBindings` re-run (regenerates the checked-in `worker-configuration.d.ts`) whenever `wrangler.jsonc`'s bindings change.
 

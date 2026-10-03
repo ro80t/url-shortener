@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "deploy": "turbo run deploy",
+    "db:migrate": "bun run --filter db migrate",
     "typecheck": "turbo run typecheck",
     "lint": "oxlint .",
     "format": "oxfmt .",
