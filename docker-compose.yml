@@ -1,0 +1,17 @@
+# Dev Postgres matching the `localConnectionString` in both workers' wrangler.jsonc.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: "0000"
+      POSTGRES_DB: test
+    ports:
+      - "1234:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Drizzle migrations, applied in filename order on first start of an empty volume.
+      - ./packages/db/drizzle:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  pgdata:

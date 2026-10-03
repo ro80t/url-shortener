@@ -23,7 +23,7 @@ cd worker-short-link  # or worker-shortener-domain
 bun run dev
 ```
 
-`worker-short-link`'s `dev` runs `vite` (Hono + Inertia + Vue, SSR'd on every request); `worker-shortener-domain`'s runs `wrangler dev` directly. Both connect to Postgres through a Hyperdrive binding, so either needs a real Hyperdrive id in its config (`wrangler.jsonc`), or a `localConnectionString` added under the `hyperdrive` binding pointing at a local/dev Postgres instance for offline development.
+`worker-short-link`'s `dev` runs `vite` (Hono + Inertia + Vue, SSR'd on every request); `worker-shortener-domain`'s runs `wrangler dev` directly. Both connect to Postgres through a Hyperdrive binding, so either needs a real Hyperdrive id in its config (`wrangler.jsonc`), or a `localConnectionString` added under the `hyperdrive` binding pointing at a local/dev Postgres instance for offline development. `docker compose up -d` from the repo root starts exactly that Postgres (port 1234, user/0000/test) and applies `packages/db/drizzle/` on first start.
 
 ## Before opening a PR
 
