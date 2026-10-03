@@ -7,3 +7,4 @@ routes = [{ pattern = "jli.li/*", zone_name = "jli.li" }]
 [[hyperdrive]]
 binding = "HYPERDRIVE"
 id = "<hyperdrive-id-here>"
+localConnectionString = "postgres://user:0000@localhost:1234/test"
