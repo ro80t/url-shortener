@@ -1,102 +1,67 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { JLI_URL, OWN_DOMAINS, REPO_URL } from "consts";
+import { useJsonPost } from "../composables/useJsonPost";
+import ResultCard from "../components/ResultCard.vue";
 import Layout from "./Layout.vue";
 
 defineProps<{ url: string }>();
 
+const compress = useJsonPost<{ id: string }>("/api/compress", "エラーが発生し短縮に失敗しました。");
+const decompress = useJsonPost<{ link: string }>(
+  "/api/decompress",
+  "解凍に失敗しました。登録されていないURLの可能性があります。",
+);
+
+/* 短縮 */
+
 const originalUrl = ref("");
-const compressing = ref(false);
-const compressError = ref("");
-const compressed = ref<{ url: string; message: string } | null>(null);
-const copied = ref(false);
+const inputError = ref("");
+
+const compressError = computed(() => inputError.value || compress.error.value);
+const shortUrl = computed(() =>
+  compress.data.value ? new URL(compress.data.value.id, JLI_URL).toString() : "",
+);
+const compressMessage = computed(() => {
+  const original = originalUrl.value.length;
+  const short = shortUrl.value.length;
+  if (original < short) return "元URLのほうが短いので、元URLを使うのをおすすめします。";
+  if (original === short) return `元URLと長さは変わりませんでした。(両方: ${short}文字)`;
+  return `${original}文字 → ${short}文字 に短縮しました`;
+});
+
+function submitCompress() {
+  compress.reset();
+  inputError.value = "";
+
+  let parsed: URL;
+  try {
+    parsed = new URL(originalUrl.value);
+  } catch {
+    inputError.value = "URL以外の文字列は短縮できません";
+    return;
+  }
+  if (OWN_DOMAINS.has(parsed.hostname)) {
+    inputError.value = "本サービスの短縮URLドメインは短縮することが出来ません";
+    return;
+  }
+
+  compress.post({ link: originalUrl.value });
+}
+
+/* 解凍 — 短縮URLそのものを貼られても、IDだけを貼られても受け付ける */
 
 const decompressInput = ref("");
-const decompressing = ref(false);
-const decompressError = ref("");
-const decompressed = ref("");
-
-async function compress() {
-  compressError.value = "";
-  compressed.value = null;
-  copied.value = false;
-
-  let url: URL;
+const decompressId = computed(() => {
+  const value = decompressInput.value.trim();
   try {
-    url = new URL(originalUrl.value);
+    const parsed = new URL(value);
+    if (OWN_DOMAINS.has(parsed.hostname)) return parsed.pathname.slice(1);
   } catch {
-    compressError.value = "URL以外の文字列は短縮できません";
-    return;
+    // URLでなければID直接入力とみなす
   }
-  if (OWN_DOMAINS.has(url.hostname)) {
-    compressError.value = "本サービスの短縮URLドメインは短縮することが出来ません";
-    return;
-  }
-
-  compressing.value = true;
-  try {
-    const response = await fetch("/api/compress", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ link: originalUrl.value }),
-    });
-    if (response.status !== 200) {
-      compressError.value = "エラーが発生し短縮に失敗しました。";
-      return;
-    }
-
-    const json = (await response.json()) as { id: string };
-    const shortUrl = new URL(json.id, JLI_URL).toString();
-    const message =
-      originalUrl.value.length < shortUrl.length
-        ? "元URLのほうが短いので、元URLを使うのをおすすめします。"
-        : originalUrl.value.length === shortUrl.length
-          ? `元URLと長さは変わりませんでした。(両方: ${shortUrl.length}文字)`
-          : `${originalUrl.value.length}文字 → ${shortUrl.length}文字 に短縮しました`;
-    compressed.value = { url: shortUrl, message };
-  } finally {
-    compressing.value = false;
-  }
-}
-
-async function copy() {
-  if (!compressed.value) return;
-  try {
-    await navigator.clipboard.writeText(compressed.value.url);
-    copied.value = true;
-  } catch {
-    copied.value = false;
-  }
-}
-
-async function decompress() {
-  decompressError.value = "";
-  decompressed.value = "";
-
-  const ownDomainPattern = [...OWN_DOMAINS].map((d) => d.replace(/\./g, "\.")).join("|");
-  const match = decompressInput.value
-    .trim()
-    .match(new RegExp(`^https:\/\/(?:${ownDomainPattern})\/(.+)`));
-  const id = match ? match[1] : decompressInput.value.trim();
-
-  decompressing.value = true;
-  try {
-    const response = await fetch("/api/decompress", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
-    if (response.status !== 200) {
-      decompressError.value = "解凍に失敗しました。登録されていないURLの可能性があります。";
-      return;
-    }
-
-    const json = (await response.json()) as { link: string };
-    decompressed.value = json.link;
-  } finally {
-    decompressing.value = false;
-  }
-}
+  return value;
+});
 </script>
 
 <template>
@@ -105,7 +70,7 @@ async function decompress() {
       <h1>長いURLを、短いリンクに。</h1>
       <p>URLを貼って押すだけ。登録不要・無料で {{ JLI_URL }} の短縮リンクを発行します。</p>
 
-      <form class="field" novalidate @submit.prevent="compress">
+      <form class="field" novalidate @submit.prevent="submitCompress">
         <input
           v-model="originalUrl"
           type="url"
@@ -114,26 +79,20 @@ async function decompress() {
           placeholder="https://example.com/very/long/url"
           aria-label="短縮したいURL"
         />
-        <button type="submit" :disabled="compressing">
-          {{ compressing ? "短縮中…" : "短縮する" }}
+        <button type="submit" :disabled="compress.pending.value">
+          {{ compress.pending.value ? "短縮中…" : "短縮する" }}
         </button>
       </form>
 
       <div aria-live="polite">
         <p v-if="compressError" class="error">{{ compressError }}</p>
-        <div v-else-if="compressed" class="result">
-          <p class="result-message">{{ compressed.message }}</p>
-          <div class="result-row">
-            <a class="result-url" :href="compressed.url">{{ compressed.url }}</a>
-            <button type="button" @click="copy">{{ copied ? "コピー済み" : "コピー" }}</button>
-          </div>
-        </div>
+        <ResultCard v-else-if="shortUrl" :message="compressMessage" :url="shortUrl" copyable />
       </div>
     </section>
 
     <section class="card">
       <h2>短縮したURLを解凍する</h2>
-      <form class="field" novalidate @submit.prevent="decompress">
+      <form class="field" novalidate @submit.prevent="decompress.post({ id: decompressId })">
         <input
           v-model="decompressInput"
           type="text"
@@ -142,20 +101,19 @@ async function decompress() {
           placeholder="rdNwqj または短縮URL"
           aria-label="短縮URLまたはそのID"
         />
-        <button type="submit" :disabled="decompressing">
-          {{ decompressing ? "解凍中…" : "解凍する" }}
+        <button type="submit" :disabled="decompress.pending.value">
+          {{ decompress.pending.value ? "解凍中…" : "解凍する" }}
         </button>
       </form>
       <small class="hint">{{ JLI_URL }}/rdNwqj の rdNwqj 部分がIDです。</small>
 
       <div aria-live="polite">
-        <p v-if="decompressError" class="error">{{ decompressError }}</p>
-        <div v-else-if="decompressed" class="result">
-          <p class="result-message">元URL</p>
-          <div class="result-row">
-            <a class="result-url" :href="decompressed">{{ decompressed }}</a>
-          </div>
-        </div>
+        <p v-if="decompress.error.value" class="error">{{ decompress.error.value }}</p>
+        <ResultCard
+          v-else-if="decompress.data.value"
+          message="元URL"
+          :url="decompress.data.value.link"
+        />
       </div>
     </section>
 
