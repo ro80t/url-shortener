@@ -39,7 +39,8 @@ export async function link2id(db: Database, url: string): Promise<string> {
       .returning({ id: linkTable.id });
     if (inserted[0]) return inserted[0].id;
 
-    // 競合: idの衝突か、同一urlが並行挿入されたか。後者ならそのidを返す。
+    // Conflict: either the id collided, or the same url was inserted concurrently.
+    // In the latter case, return that row's id.
     const raced = await db
       .select({ id: linkTable.id })
       .from(linkTable)

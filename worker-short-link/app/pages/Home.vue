@@ -13,7 +13,7 @@ const decompress = useJsonPost<{ link: string }>(
   "解凍に失敗しました。登録されていないURLの可能性があります。",
 );
 
-/* 短縮 */
+/* Shorten */
 
 const originalUrl = ref("");
 const inputError = ref("");
@@ -49,7 +49,7 @@ function submitCompress() {
   compress.post({ link: originalUrl.value });
 }
 
-/* 解凍 — 短縮URLそのものを貼られても、IDだけを貼られても受け付ける */
+/* Expand — accepts either a short URL pasted whole or just its id */
 
 const decompressInput = ref("");
 const decompressId = computed(() => {
@@ -58,7 +58,7 @@ const decompressId = computed(() => {
     const parsed = new URL(value);
     if (OWN_DOMAINS.has(parsed.hostname)) return parsed.pathname.slice(1);
   } catch {
-    // URLでなければID直接入力とみなす
+    // Not a URL, so treat the input as a bare id
   }
   return value;
 });

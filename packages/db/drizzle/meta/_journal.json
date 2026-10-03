@@ -15,6 +15,13 @@
       "when": 1790952821921,
       "tag": "0001_white_guardian",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791066572460,
+      "tag": "0002_pale_sharon_ventura",
+      "breakpoints": true
     }
   ]
 }

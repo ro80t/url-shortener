@@ -5,7 +5,7 @@ description: Change the shared Postgres (Neon) schema used by every short-link W
 
 # DB schema changes
 
-Schema lives in exactly one place: `packages/db/src/schema.ts` (Drizzle, `sites` table — `id text primary key`, `link text unique not null`). Both workers import it from the shared `db` workspace package (`db/src/index.ts` re-exports `schema.ts` and `client.ts`) — never redefine or duplicate the table shape inside a worker.
+Schema lives in exactly one place: `packages/db/src/schema.ts` (Drizzle, `link` table — `id text primary key`, `url text not null` indexed by a hash index, `domain` enum). `url` deliberately carries no UNIQUE constraint and no btree index: a btree entry can't exceed ~2704 bytes and the legacy jli data holds URLs several times that, so lookups go through `link_url_hash_idx` (equality only) and a URL may map to more than one id. Both workers import it from the shared `db` workspace package (`db/src/index.ts` re-exports `schema.ts` and `client.ts`) — never redefine or duplicate the table shape inside a worker.
 
 ## Steps
 
