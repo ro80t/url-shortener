@@ -7,7 +7,7 @@ A Bun workspaces + Turborepo monorepo, with Drizzle ORM as the query layer over 
 - `packages/constants/`: shared fixed values (the `jli.li` / `short-link.ro80t.com` domains and origins), imported as `consts`.
 - `packages/db/`: Drizzle schema and DB client, shared by every Worker below.
 - `worker-short-link/`: the one and only issuance backend — link-issuance API and the front-end site, deployed to `short-link.ro80t.com`. This is where new short links are created and looked up, regardless of which domain they'll redirect from. Built with Hono + Inertia.js + Vue 3 (SSR), bundled by Vite (`@cloudflare/vite-plugin`).
-- `worker-shortener-domain/`: a thin, redirect-only Worker for `jli.li`, the first short-link domain. It resolves `/{id}` directly against the shared database and 301-redirects; every other path 302-redirects to `short-link.ro80t.com`.
+- `worker-shortener-domain/`: a thin, redirect-only Worker for `jli.li`, the first short-link domain. It resolves `/{id}` against the shared database **scoped to the domain the request arrived on** (so the same code can be deployed for any further domain, and an id issued for one domain doesn't resolve on another) and 301-redirects; an unknown id, or a host that isn't one of ours, 302-redirects to `short-link.ro80t.com`.
 
 Every Worker reads/writes the same `link` table (`id text primary key`, `url text not null`, `domain` enum) through the shared Hyperdrive binding — no HTTP hop between them. `url` is indexed by a hash index rather than a unique btree one, because btree entries are capped at ~2704 bytes and legacy jli rows hold longer URLs.
 

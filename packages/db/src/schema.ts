@@ -1,8 +1,8 @@
 import { index, pgEnum, pgTable, text } from "drizzle-orm/pg-core";
-import { JLI_DOMAIN } from "consts";
+import { SHORT_LINK_DOMAINS } from "consts";
 
 // short-link.ro80t.com only issues links, it never redirects — so it's not a valid `domain` value.
-export const domainEnum = pgEnum("domain", [JLI_DOMAIN]);
+export const domainEnum = pgEnum("domain", SHORT_LINK_DOMAINS);
 
 export const link = pgTable(
   "link",

@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { inertia } from "@hono/inertia";
+import { DEFAULT_SHORT_LINK_DOMAIN } from "consts";
 import { client, id2link, link2id } from "./db";
 import { validateLink } from "./validate";
 import { rootView } from "./root-view";
@@ -19,7 +20,7 @@ const routes = app
 
     const { db, close } = client(c.env);
     try {
-      const id = await link2id(db, link);
+      const id = await link2id(db, link, DEFAULT_SHORT_LINK_DOMAIN);
       return c.json({ link, id });
     } finally {
       await close();

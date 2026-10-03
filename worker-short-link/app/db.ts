@@ -1,5 +1,6 @@
 import { createDb, link as linkTable, type Database } from "db";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import type { ShortLinkDomain } from "consts";
 
 const ID_SIZE = 6;
 const ID_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -22,11 +23,12 @@ export async function id2link(db: Database, id: string): Promise<string | null> 
   return rows[0]?.url ?? null;
 }
 
-export async function link2id(db: Database, url: string): Promise<string> {
+/** Returns the id this url already has on `domain`, issuing one if it has none. */
+export async function link2id(db: Database, url: string, domain: ShortLinkDomain): Promise<string> {
   const existing = await db
     .select({ id: linkTable.id })
     .from(linkTable)
-    .where(eq(linkTable.url, url))
+    .where(and(eq(linkTable.url, url), eq(linkTable.domain, domain)))
     .limit(1);
   if (existing[0]) return existing[0].id;
 
@@ -34,7 +36,7 @@ export async function link2id(db: Database, url: string): Promise<string> {
     const id = generateId();
     const inserted = await db
       .insert(linkTable)
-      .values({ id, url })
+      .values({ id, url, domain })
       .onConflictDoNothing()
       .returning({ id: linkTable.id });
     if (inserted[0]) return inserted[0].id;
@@ -44,7 +46,7 @@ export async function link2id(db: Database, url: string): Promise<string> {
     const raced = await db
       .select({ id: linkTable.id })
       .from(linkTable)
-      .where(eq(linkTable.url, url))
+      .where(and(eq(linkTable.url, url), eq(linkTable.domain, domain)))
       .limit(1);
     if (raced[0]) return raced[0].id;
   }

@@ -39,13 +39,13 @@ If you changed `packages/db/src/schema.ts`, follow `.agents/skills/db-migration/
 
 ## Adding a new short-link domain
 
-The redirect side is designed to be duplicated per domain while `worker-short-link` stays the single shared backend:
+The redirect side is designed to be duplicated per domain while `worker-short-link` stays the single shared backend. `worker-shortener-domain/src/index.ts` resolves ids against the domain the request arrived on, so the same code serves any domain and an id issued for one domain never resolves on another:
 
-1. Copy `worker-shortener-domain/` to a new `worker-<name>/` directory (same `src/index.ts` pattern: look up `/{id}` in the shared DB, redirect if found, otherwise 302 to `short-link.ro80t.com`).
-2. Point its `wrangler.jsonc` `routes` at the new domain, and bind the same Hyperdrive config.
-3. Add the new package to the root `package.json` `workspaces` array.
-4. Add the new domain to `OWN_DOMAINS` in `worker-short-link/app/validate.ts`, so it can't be shortened into a link on itself (the same reason `jli.li` and `short-link.ro80t.com` are already in that set).
-5. If the domain should also appear in the front-end's displayed short URL (`worker-short-link/app/pages/Home.vue` currently hardcodes `jli.li`), that logic will need to become domain-aware — not required if the new domain is redirect-only infrastructure without its own issuance UI.
+1. Add the domain to `SHORT_LINK_DOMAINS` in `packages/constants/src/index.ts`. That list is the `domain` enum in the DB (`packages/db/src/schema.ts`), the set of hosts the redirect Worker answers for, and `OWN_DOMAINS` (so a link pointing at it can't be shortened into a link on itself).
+2. `cd packages/db && bun run generate` for the enum migration, and commit it — the deploy job applies it.
+3. Copy `worker-shortener-domain/` to a new `worker-<name>/` directory. Its `src/index.ts` needs no change; point its `wrangler.jsonc` `routes` at the new domain and bind the same Hyperdrive config.
+4. Add the new package to the root `package.json` `workspaces` array.
+5. Issuance still mints links on `DEFAULT_SHORT_LINK_DOMAIN` only (`worker-short-link/app/server.ts` passes it to `link2id`, and `Home.vue` shows that domain). Letting people pick a domain in the UI means passing a domain through `/api/compress` — not required if the new domain is redirect-only infrastructure.
 
 ## Code style
 
