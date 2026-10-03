@@ -6,9 +6,10 @@ defineProps<{ url: string }>();
 
 <template>
   <Layout title="ページが見つかりません" :url="url">
-    <div class="contents-block">
-      <h1>404</h1>
-      <p>ページが見つかりませんでした。</p>
+    <div class="notfound">
+      <p class="code">404</p>
+      <h1>ページが見つかりませんでした</h1>
+      <p><a href="/">トップページへ戻る</a></p>
     </div>
   </Layout>
 </template>

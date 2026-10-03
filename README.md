@@ -64,3 +64,7 @@ Rewritten as the Bun/Turborepo + Cloudflare Workers + Neon/Drizzle architecture 
 ### worker-short-link rewritten in Vue
 
 `worker-short-link`'s front-end and API were rewritten with Hono + Inertia.js + Vue 3 (SSR) + Vite, following the architecture of [ro80t/service-status-page](https://github.com/ro80t/service-status-page). Visual design and copy are unchanged; the plain static-HTML + hand-rolled `fetch` handler were replaced with Vue SFC pages and Hono routes.
+
+### Redesign and rename to "ro80t's short link"
+
+The front-end was redesigned (system font stack, light/dark theme, card layout, copy button, loading states) and rebranded from the JLI-era name — `jli.li` stays as the short-link domain. The 64MB of bundled Japanese TTF webfonts (12MB of which every visitor downloaded) were dropped.

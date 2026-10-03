@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
+import { JLI_DOMAIN, REPO_URL, SITE_NAME } from "consts";
 
-const SITE_NAME = "URL短縮サービス / jli.li";
 const DEFAULT_DESCRIPTION =
-  "URL短縮サービスです。どんなに長いURLでも小さくまとめることが出来ます。";
+  "ro80t's short link は無料のURL短縮サービスです。どんなに長いURLでも jli.li の短いリンクにまとめられます。";
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     title?: string;
     description?: string;
@@ -22,38 +22,34 @@ const props = withDefaults(
   <Head>
     <title>{{ title }}</title>
     <meta name="description" :content="description" />
-    <meta name="keywords" content="URL短縮サービス, jli.li, jli, URL短縮, 短縮" />
-    <meta name="theme-color" content="#008b8b" />
+    <meta name="keywords" content="URL短縮サービス, ro80t, jli.li, URL短縮, 短縮" />
+    <meta name="theme-color" content="#0d9488" />
     <meta name="format-detection" content="telephone=no,email=no,address=no" />
 
     <meta property="og:url" :content="url" />
     <meta property="og:type" content="website" />
     <meta property="og:title" :content="title" />
     <meta property="og:description" :content="description" />
-    <meta property="og:site_name" content="URL短縮サービス / jli.li" />
+    <meta property="og:site_name" :content="SITE_NAME" />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@thunlights" />
-    <meta name="twitter:creator" content="@thunlights" />
+    <meta name="twitter:card" content="summary" />
   </Head>
 
-  <div class="header">
-    <div class="header-block">
-      <a href="/">
-        <p class="header-title">JLI.li (URL 短縮サービス)</p>
-      </a>
+  <header class="header">
+    <div class="header-inner">
+      <a class="brand" href="/">ro80t's <span class="brand-domain">short link</span></a>
+      <span class="brand-tag">{{ JLI_DOMAIN }}</span>
     </div>
-  </div>
+  </header>
 
-  <div class="main">
+  <main class="main">
     <slot />
-  </div>
+  </main>
 
-  <div class="footer">
-    <p>
-      This project is publicly available in Github
-      <a href="https://github.com/thunlights/jli">code</a>
-    </p>
-    <p>Supported By <a href="https://www.thunlights.com">Team ThunLights</a></p>
-  </div>
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>オープンソースです — <a :href="REPO_URL">GitHub</a> で全てのコードを公開しています。</p>
+      <p>© ro80t</p>
+    </div>
+  </footer>
 </template>
