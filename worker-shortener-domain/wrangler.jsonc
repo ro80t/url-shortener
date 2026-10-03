@@ -1,10 +1,10 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "short-link",
-  "compatibility_date": "2026-09-26",
+  "name": "worker-shortener-domain",
+  "compatibility_date": "2025-07-18",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "./app/server.ts",
-  "routes": [{ "pattern": "short-link.ro80t.com/*", "zone_name": "ro80t.com" }],
+  "main": "src/index.ts",
+  "routes": [{ "pattern": "jli.li/*", "zone_name": "jli.li" }],
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",

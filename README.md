@@ -27,7 +27,7 @@ Point it at the Neon connection string from step 1.
 
 ### 3. Wire up the Hyperdrive id
 
-Set the Hyperdrive id you just created as the `hyperdrive` binding's `id` in **every** worker's config — `worker-short-link/wrangler.jsonc` and `worker-shortener-domain/wrangler.toml` (they ship with the placeholder `<hyperdrive-id-here>`); any redirect worker added for a new domain needs the same id.
+Set the Hyperdrive id you just created as the `hyperdrive` binding's `id` in **every** worker's config — `worker-short-link/wrangler.jsonc` and `worker-shortener-domain/wrangler.jsonc` (they ship with the placeholder `<hyperdrive-id-here>`); any redirect worker added for a new domain needs the same id.
 
 ### 4. Install dependencies
 

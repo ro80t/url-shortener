@@ -8,7 +8,7 @@ description: Deploy the project's Cloudflare Workers (short-link.ro80t.com issua
 Bun + Turborepo monorepo, two Cloudflare Workers:
 
 - `worker-short-link` → `short-link.ro80t.com` (issuance API + site — Hono + Inertia.js + Vue 3 SSR, built with Vite/`@cloudflare/vite-plugin`, config in `wrangler.jsonc`)
-- `worker-shortener-domain` → `jli.li` (redirect only, no assets/build step, config in `wrangler.toml`)
+- `worker-shortener-domain` → `jli.li` (redirect only, no assets/build step, config in `wrangler.jsonc`)
 
 Both share `packages/db` (Drizzle schema/client) and the same Hyperdrive-bound Neon Postgres — no HTTP hop between them.
 
@@ -22,7 +22,7 @@ Both share `packages/db` (Drizzle schema/client) and the same Hyperdrive-bound N
 
 - Neon Postgres DB created, schema applied from `packages/db/drizzle/*.sql` (see the `db-migration` skill).
 - One Hyperdrive config in Cloudflare pointing at that Neon connection string.
-- Both workers' configs have their `hyperdrive` binding's `id` set to that Hyperdrive's id — it ships as the placeholder `<hyperdrive-id-here>` in `worker-short-link/wrangler.jsonc` and `worker-shortener-domain/wrangler.toml`.
+- Both workers' configs have their `hyperdrive` binding's `id` set to that Hyperdrive's id — it ships as the placeholder `<hyperdrive-id-here>` in `worker-short-link/wrangler.jsonc` and `worker-shortener-domain/wrangler.jsonc`.
 - Cloudflare routes assigning `short-link.ro80t.com/*` and `jli.li/*` to their respective workers.
 - `worker-short-link` also needs `bunx wrangler types --env-interface CloudflareBindings` re-run (regenerates the checked-in `worker-configuration.d.ts`) whenever `wrangler.jsonc`'s bindings change.
 
